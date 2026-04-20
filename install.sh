@@ -107,11 +107,13 @@ declare -A TOOL_PACKAGES=(
 
 for cli in "${!TOOL_PACKAGES[@]}"; do
     package_name="${TOOL_PACKAGES[$cli]}"
-    if "$MICROMAMBA_CMD" list -n base | grep -qE "^${package_name}[[:space:]]"; then
+    if command -v "$cli" &> /dev/null; then
+        echo -e "${GREEN}${cli} already on PATH, skipping${NC}"
+    elif "$MICROMAMBA_CMD" list -n base | grep -qE "^${package_name}[[:space:]]"; then
         echo -e "${GREEN}${package_name} already installed${NC}"
     else
         echo -e "${YELLOW}Installing ${package_name} (${cli})...${NC}"
-        "$MICROMAMBA_CMD" install -n base -y -c conda-forge -c bioconda -c defaults "$package_name"
+        "$MICROMAMBA_CMD" install -n base -y -c conda-forge -c bioconda "$package_name"
         echo -e "${GREEN}${package_name} installed${NC}"
     fi
 done
